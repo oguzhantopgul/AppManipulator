@@ -15,5 +15,5 @@ keytool -genkey -v -keystore testkeystore -keyalg RSA -keysize 2048 -storepass t
 
 ## Usage
 ```sh
-python appmanipulator.py -i INPUT_APK -o OUTPUT_FOLDER -f FILE_TO_BE_MANIPULATED -s STRING_TO_SEARCH -r STRING_TO_REPLACE
+python appmanipulator.py -i INPUT_APK -o OUTPUT_APK -f FILE_TO_BE_MANIPULATED -s STRING_TO_SEARCH -r STRING_TO_REPLACE
 ```
