@@ -8,6 +8,8 @@ import fileinput
 import fnmatch
 import os
 import shutil
+import string
+import random
 
 class bcolors:
     HEADER = '\033[95m'
@@ -21,22 +23,31 @@ class bcolors:
 
 parser = argparse.ArgumentParser(description='AppManipulator APK Repackager')
 parser.add_argument('-i','--input', help='Input APK file',required=True)
-parser.add_argument('-o','--output',help='Output APK file', required=True)
+parser.add_argument('-o','--output',help='Output APK file', required=False)
 parser.add_argument('-f','--file', help='File to Manipulate',required=True)
 parser.add_argument('-s','--search', help='Text To Search',required=True)
 parser.add_argument('-r','--replace', help='Text To Replace',required=True)
 args = parser.parse_args()
 
-tempFolder = "tempFolder"
+
+random = ''.join(random.choice(string.ascii_uppercase) for i in range(25))
+tempFolder = random
 fileToSearch = args.file
 textToSearch = args.search
 textToReplace = args.replace
 appToBesigned = os.path.normcase(tempFolder + "/dist/" + args.input)
 
+if not args.output:
+	resultingFileName = random + ".apk"
+else:
+	resultingFileName = args.output
 
 print bcolors.OKGREEN + "AppManipulator Output [*] Disassemling APK..." + bcolors.ENDC 
 '''Disassemble App''' 
-call(["apktool", "d", args.input, "-o", tempFolder])
+try:
+	call(["tools/apktool", "d", args.input, "-o", tempFolder])
+except Exception,err:
+	print err
 
 '''Search for file name'''
 matchedFiles = []
@@ -68,15 +79,15 @@ for matchedFile in matchedFiles:
 print bcolors.OKGREEN + "AppManipulator Output [*] Assembling APK Again..." + bcolors.ENDC 
 
 '''Assemble App Again'''
-call(["apktool", "b", tempFolder])
+call(["tools/apktool", "b", tempFolder])
 
 print bcolors.OKGREEN + "AppManipulator Output [*] Signing Repackaged APK..." + bcolors.ENDC 
 
 '''Sign App'''
-call(["jarsigner", "-sigalg", "SHA1withRSA", "-digestalg", "SHA1", "-keystore", "testkeystore", "-storepass", "testtest", appToBesigned, "testkey"])
+call(["tools/jarsigner", "-sigalg", "SHA1withRSA", "-digestalg", "SHA1", "-keystore", "testkeystore", "-storepass", "testtest", appToBesigned, "testkey"])
 
 '''Move Output File'''
-shutil.move(appToBesigned, args.output)
+shutil.move(appToBesigned, resultingFileName)
 print bcolors.OKGREEN + "AppManipulator Output [*] Repackaged APK Succesfully Created!" + bcolors.ENDC
 
 '''Remove Temp Directory'''
